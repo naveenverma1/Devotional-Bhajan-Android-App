@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "338525440227",
+    "firebase_url": "https://sunderkand-5b024.firebaseio.com",
+    "project_id": "sunderkand-5b024",
+    "storage_bucket": "sunderkand-5b024.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:338525440227:android:63687d72ed5143c7",
+        "android_client_info": {
+          "package_name": "com.nv.user.sunderkand"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "338525440227-38fgqnn1v6b4ond2s3t7n5g93vg0puln.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nv.user.sunderkand",
+            "certificate_hash": "8725c4cbfcc2c2518bb9b94b8abb886191582cc5"
+          }
+        },
+        {
+          "client_id": "338525440227-jr56sqa73pegqabh322spcvsbc75iqcl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSUtOrD-ekz1ooGYuSpI7SDyPgU5k1KOc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "338525440227-jr56sqa73pegqabh322spcvsbc75iqcl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Sunderkand</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+   <!-- <string name="banner_ad_unit_id">ca-app-pub-2408281336296150/8376209279</string>
+    <string name="admob_interstitial_id">ca-app-pub-2408281336296150/4174800881</string>-->
+
+    <!-- TODO: Remove or change this placeholder text -->
+
+</resources>

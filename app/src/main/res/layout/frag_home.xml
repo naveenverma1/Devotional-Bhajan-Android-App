@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="wrap_content"
+        android:layout_height="244dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="14dp"
+        android:src="@mipmap/tgghis" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/scroll"
+        android:layout_below="@+id/image">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:textColor="#190E15"
+            android:textSize="30sp"
+            android:background="@drawable/hh"
+            android:shadowColor="#703741"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="7"
+        android:layout_width="500dp"
+            android:layout_height="wrap_content"
+            android:text="Sunderkand"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:id="@+id/sunderkandb"/>
+
+        <Button
+            android:textColor="#190E15"
+            android:textSize="30sp"
+            android:background="@drawable/hh"
+            android:shadowColor="#703741"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="7"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chalisa"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:id="@+id/hanumanb"
+            android:layout_below="@+id/sunderkandb"
+            />
+        <Button
+            android:textColor="#190E15"
+            android:textSize="30sp"
+            android:background="@drawable/hh"
+            android:shadowColor="#703741"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="7"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="aarti"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:id="@+id/aaarti"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_below="@+id/hanumanb"
+            />
+
+        <Button
+            android:textColor="#190E15"
+            android:textSize="30sp"
+            android:background="@drawable/hh"
+            android:shadowColor="#703741"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="7"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Share"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="20dp"
+            android:id="@+id/share"
+            android:layout_below="@+id/aaarti"
+            />
+        <Button
+            android:textColor="#190E15"
+            android:textSize="30sp"
+            android:background="@drawable/hh"
+            android:shadowColor="#703741"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="7"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="About"
+            android:layout_marginTop="20dp"
+            android:id="@+id/about"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_below="@+id/share"
+            />
+
+    </RelativeLayout>
+
+    </ScrollView>
+
+
+</RelativeLayout>
