@@ -1,1 +1,6 @@
 release/output.json
+build.gradle
+gradle.properties
+gradle.properties
+gradlew
+java/lang/annotations.xml
