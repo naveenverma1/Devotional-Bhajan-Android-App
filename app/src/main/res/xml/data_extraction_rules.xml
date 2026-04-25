@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   Data extraction rules (Android 12+ / API 31+) for Sunderkand Path and Chalisa.
+   The app stores no personal user data; defaults are safe.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+    </cloud-backup>
+    <device-transfer>
+    </device-transfer>
+</data-extraction-rules>

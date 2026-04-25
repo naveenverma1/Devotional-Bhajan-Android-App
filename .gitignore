@@ -1,6 +1,31 @@
-release/output.json
-build.gradle
-gradle.properties
-gradle.properties
-gradlew
-java/lang/annotations.xml
+# Build artifacts
+.gradle/
+build/
+/captures
+.externalNativeBuild
+
+# IDE
+*.iml
+.idea/
+.vscode/
+
+# Local config — never commit
+/local.properties
+
+# Keystore files — NEVER commit signing keys
+*.jks
+*.keystore
+keystore.properties
+/keystore/
+
+# Google Cloud service account keys — NEVER commit
+*-service-account.json
+play-service-account.json
+
+# Stray IDE annotation stubs (not part of the app)
+/android/
+/java/
+
+# OS junk
+.DS_Store
+Thumbs.db

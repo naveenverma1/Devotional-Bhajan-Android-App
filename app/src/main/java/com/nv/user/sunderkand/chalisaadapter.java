@@ -55,7 +55,7 @@ public class chalisaadapter extends BaseAdapter {
         String imagedata=jsonObject.optString("image");
 
         textView.setText(data);
-        Picasso.with(mactivity).load(imagedata).error(R.mipmap.ic_launcher).into(image);
+        Picasso.get().load(imagedata).error(R.mipmap.ic_launcher).into(image);
         return view;
     }
 

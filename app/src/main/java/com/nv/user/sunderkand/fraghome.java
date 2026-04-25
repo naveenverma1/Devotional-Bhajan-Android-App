@@ -2,11 +2,11 @@ package com.nv.user.sunderkand;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -83,44 +83,36 @@ return view;
     @Override
     public void onClick(View v) {
 
-        switch (v.getId()){
-          case  R.id.sunderkandb :
-
-              sunderkanddata fragg = new sunderkanddata();
-              FragmentManager fm = getFragmentManager();
-              if(fm.getBackStackEntryCount() > 0 ) {
-                  fm.popBackStack();//Pops one of the added fragments
-
-              }
-              FragmentTransaction ft = fm.beginTransaction();
-              ft.replace(R.id.Framelay,fragg).addToBackStack(null).commit();
-              break;
-            case R.id.hanumanb :
-                chalisaFragment fragment = new chalisaFragment();
-                FragmentManager fc =getFragmentManager();
-                FragmentTransaction fr = fc.beginTransaction();
-                fr.replace(R.id.Framelay,fragment).addToBackStack("").commit();
-                break;
-            case
-                 R.id.aaarti :
-                aartifragment frng = new aartifragment();
-            FragmentManager hh =getFragmentManager();
-            FragmentTransaction kk =hh.beginTransaction();
-            kk.replace(R.id.Framelay,frng).addToBackStack("").commit();
-                break;
-                case
-                        R.id.about :
-                    about frngg = new about();
-                    FragmentManager hhh =getFragmentManager();
-                    FragmentTransaction kkk =hhh.beginTransaction();
-                    kkk.replace(R.id.Framelay,frngg).addToBackStack("").commit();
-
-        }}
-
+        int id = v.getId();
+        if (id == R.id.sunderkandb) {
+            sunderkanddata fragg = new sunderkanddata();
+            FragmentManager fm = getFragmentManager();
+            if (fm.getBackStackEntryCount() > 0) {
+                fm.popBackStack();
+            }
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.replace(R.id.Framelay, fragg).addToBackStack(null).commit();
+        } else if (id == R.id.hanumanb) {
+            chalisaFragment fragment = new chalisaFragment();
+            FragmentManager fc = getFragmentManager();
+            FragmentTransaction fr = fc.beginTransaction();
+            fr.replace(R.id.Framelay, fragment).addToBackStack("").commit();
+        } else if (id == R.id.aaarti) {
+            aartifragment frng = new aartifragment();
+            FragmentManager hh = getFragmentManager();
+            FragmentTransaction kk = hh.beginTransaction();
+            kk.replace(R.id.Framelay, frng).addToBackStack("").commit();
+        } else if (id == R.id.about) {
+            about frngg = new about();
+            FragmentManager hhh = getFragmentManager();
+            FragmentTransaction kkk = hhh.beginTransaction();
+            kkk.replace(R.id.Framelay, frngg).addToBackStack("").commit();
+        }
     }
 
 
 
 //method///////////////////////
+}
 
 
