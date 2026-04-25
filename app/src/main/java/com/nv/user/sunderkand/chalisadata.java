@@ -5,7 +5,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,11 +24,6 @@ import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,9 +48,6 @@ public class chalisadata extends Fragment implements chalisadatam {
  // String url ="https://sunderkand-5b024.firebaseio.com/hanuman%20chalisa.json";
 //  List<JSONObject> objectList;
 /* InterstitialAd mInterstitialAd;*/
-
-    StorageReference storageReference;
-    DatabaseReference databaseReference;
 
     // private Utilities utils;
     // private int seekForwardTime = 5000; // 5000 milliseconds
