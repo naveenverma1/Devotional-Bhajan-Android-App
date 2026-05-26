@@ -29,3 +29,5 @@ play-service-account.json
 # OS junk
 .DS_Store
 Thumbs.db
+# Windows reserved-name artifact when shell redirects to `nul`.
+/nul

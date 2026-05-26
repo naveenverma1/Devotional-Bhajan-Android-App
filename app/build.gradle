@@ -15,7 +15,7 @@ android {
         applicationId "com.nv.user.sunderkand"
         minSdkVersion 21
         targetSdkVersion 35
-        versionCode 3
+        versionCode 7
         versionName "3.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
