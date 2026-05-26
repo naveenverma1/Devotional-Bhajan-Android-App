@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <!-- Devotional theme: warm saffron primary, deep maroon accent, cream surface. -->
+    <color name="colorPrimary">#C8412A</color>
+    <color name="colorPrimaryDark">#8E2A18</color>
+    <color name="colorAccent">#F2A93B</color>
+    <color name="colorSurface">#FFF8EC</color>
+    <color name="colorOnSurface">#2A1B12</color>
+    <color name="colorButtonText">#190E15</color>
+    <color name="colorButtonShadow">#703741</color>
+    <color name="colorSeekBarBg">#E2A219</color>
 </resources>

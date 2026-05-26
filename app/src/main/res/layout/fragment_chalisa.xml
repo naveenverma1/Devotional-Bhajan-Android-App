@@ -1,22 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Chalisa list screen. While the list is being fetched from the Firebase
+    realtime DB the ProgressBar is shown; on error the inline error block
+    with a Retry button takes over. Once data lands, only the ListView
+    is visible.
+-->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".chalisaFragment">
 
-   <!-- <ProgressBar
-        android:id="@+id/simpleProgressBar"
-        android:layout_width="84dp"
-        android:layout_height="75dp"
-        android:layout_centerInParent="true"
-        android:scrollbarSize="60dp" />-->
     <ListView
         android:id="@+id/listschalisa"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:dividerHeight="2dp"
-        android:divider="#000000">
-    </ListView>
+        android:divider="#33000000"
+        android:dividerHeight="1dp"
+        android:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/chalisa_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" />
+
+    <LinearLayout
+        android:id="@+id/chalisa_error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingHorizontal="32dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/chalisa_error_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/colorOnSurface"
+            android:textSize="16sp"
+            tools:text="@string/error_loading" />
+
+        <Button
+            android:id="@+id/chalisa_retry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/retry" />
+
+    </LinearLayout>
 
 </RelativeLayout>

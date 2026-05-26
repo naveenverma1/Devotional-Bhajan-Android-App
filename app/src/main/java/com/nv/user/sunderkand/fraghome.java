@@ -86,7 +86,7 @@ return view;
         int id = v.getId();
         if (id == R.id.sunderkandb) {
             sunderkanddata fragg = new sunderkanddata();
-            FragmentManager fm = getFragmentManager();
+            FragmentManager fm = getParentFragmentManager();
             if (fm.getBackStackEntryCount() > 0) {
                 fm.popBackStack();
             }
@@ -94,17 +94,17 @@ return view;
             ft.replace(R.id.Framelay, fragg).addToBackStack(null).commit();
         } else if (id == R.id.hanumanb) {
             chalisaFragment fragment = new chalisaFragment();
-            FragmentManager fc = getFragmentManager();
+            FragmentManager fc = getParentFragmentManager();
             FragmentTransaction fr = fc.beginTransaction();
             fr.replace(R.id.Framelay, fragment).addToBackStack("").commit();
         } else if (id == R.id.aaarti) {
             aartifragment frng = new aartifragment();
-            FragmentManager hh = getFragmentManager();
+            FragmentManager hh = getParentFragmentManager();
             FragmentTransaction kk = hh.beginTransaction();
             kk.replace(R.id.Framelay, frng).addToBackStack("").commit();
         } else if (id == R.id.about) {
             about frngg = new about();
-            FragmentManager hhh = getFragmentManager();
+            FragmentManager hhh = getParentFragmentManager();
             FragmentTransaction kkk = hhh.beginTransaction();
             kkk.replace(R.id.Framelay, frngg).addToBackStack("").commit();
         }

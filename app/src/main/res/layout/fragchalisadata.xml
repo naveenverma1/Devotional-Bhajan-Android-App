@@ -1,27 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+    Hanuman Chalisa reader. Top: A-/A+ font controls. Middle: WebView for
+    the chaupais. Bottom: SeekBar + play button (medialla include).
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <include
+        android:id="@+id/font_controls"
+        layout="@layout/font_controls"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentTop="true" />
 
+    <include
+        android:id="@+id/media_controls"
+        layout="@layout/medialla"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
 
     <WebView
         android:id="@+id/Webchalisa"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></WebView>
-
-
-    <include layout="@layout/medialla"></include>
-<!--    <com.google.android.gms.ads.AdView
-        xmlns:ads="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/adView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        ads:adSize="BANNER"
-        ads:adUnitId="ca-app-pub-2408281336296150/8376209279">
-    </com.google.android.gms.ads.AdView>-->
+        android:layout_height="match_parent"
+        android:layout_above="@id/media_controls"
+        android:layout_below="@id/font_controls" />
 
 </RelativeLayout>

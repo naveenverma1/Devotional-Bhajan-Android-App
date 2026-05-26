@@ -33,30 +33,35 @@ public class chalisaadapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        return mlist.size();
+        return mlist.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return 0;
+        return position;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = mactivity.getLayoutInflater();
+        if (convertView == null) {
+            LayoutInflater inflater = mactivity.getLayoutInflater();
+            convertView = inflater.inflate(R.layout.custumchalisalist, parent, false);
+        }
 
-        View view =inflater.inflate(R.layout.custumchalisalist,null);
-
-        TextView textView =view.findViewById(R.id.text);
-        ImageView image=view.findViewById(R.id.img);
+        TextView textView = convertView.findViewById(R.id.text);
+        ImageView image = convertView.findViewById(R.id.img);
 
         JSONObject jsonObject = mlist.get(position);
-        String data =jsonObject.optString("name");
-        String imagedata=jsonObject.optString("image");
+        String data = jsonObject.optString("name");
+        String imagedata = jsonObject.optString("image");
 
         textView.setText(data);
-        Picasso.get().load(imagedata).error(R.mipmap.ic_launcher).into(image);
-        return view;
+        Picasso.get()
+                .load(imagedata)
+                .placeholder(R.mipmap.ic_launcher)
+                .error(R.mipmap.ic_launcher)
+                .into(image);
+        return convertView;
     }
 
 

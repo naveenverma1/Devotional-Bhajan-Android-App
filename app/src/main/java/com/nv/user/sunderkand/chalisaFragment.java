@@ -1,29 +1,27 @@
 package com.nv.user.sunderkand;
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.CountDownTimer;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
+import android.widget.TextView;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.RetryPolicy;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -35,193 +33,157 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-
+/**
+ * Lists the available chalisas fetched from the public Firebase Realtime
+ * DB endpoint. Has three UI states:
+ *
+ *  - LOADING: ProgressBar centered, list hidden.
+ *  - SUCCESS: ListView populated, others hidden.
+ *  - ERROR:   inline error message + Retry button.
+ *
+ * The retry button re-runs the fetch. The Volley request is tagged with
+ * REQUEST_TAG and cancelled in onDestroyView so we don't deliver
+ * callbacks into a destroyed fragment.
+ */
 public class chalisaFragment extends Fragment {
 
-    chalisaadapter mchalisaadapter;
-    ListView listView;
-    boolean mHasMore =true;
-    //private ProgressBar progressBar;
-    View view;
-   /* CountDownTimer mCountDownTimer;
-    int twoMin = 2 * 60 * 1000;
-    int dTotal;*/
+    private static final String URL = "https://sunderkand-5b024.firebaseio.com/chalisa.json";
+    private static final String REQUEST_TAG = "chalisaListRequest";
 
-    String url="https://sunderkand-5b024.firebaseio.com/chalisa.json";
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view =inflater.inflate (R.layout.fragment_chalisa, container, false);
-     //   progressBar = (ProgressBar)view.findViewById(R.id.simpleProgressBar);
-     //   mCountDownTimer = new CountDownTimer(twoMin, 1000) {
-         /*   public void onTick(long millisUntilFinished) {
+    private chalisaadapter mchalisaadapter;
+    private ListView listView;
+    private ProgressBar progressBar;
+    private LinearLayout errorBlock;
+    private TextView errorText;
+    private RequestQueue requestQueue;
 
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_chalisa, container, false);
 
-                int total = (int) ((dTotal / 120) * 100);
-                progressBar.setProgress(total);
-            }
+        listView = view.findViewById(R.id.listschalisa);
+        progressBar = view.findViewById(R.id.chalisa_progress);
+        errorBlock = view.findViewById(R.id.chalisa_error);
+        errorText = view.findViewById(R.id.chalisa_error_text);
+        Button retry = view.findViewById(R.id.chalisa_retry);
 
-            public void onFinish() {
-                // DO something when 2 minutes is up
-            }
-        }.start();*/
-            /*@Override
-            public void onTick(long millisUntilFinished) {
-                Log.v("Log_tag", "Tick of Progress" + i + millisUntilFinished);
-
-                progressBar.setProgress((int) i * 100 / (5000 / 1000));
-
-            }
-
-            @Override
-            public void onFinish() {
-                i++;
-                progressBar.setProgress(100);
-            }
-        };mCountDownTimer.start();*/
-           /* progressBar.setProgress(0);
-
-
-        final ObjectAnimator animation = ObjectAnimator.ofInt(progressBar, "progress", 0, 100);
-        animation.setDuration(5000);
-        animation.setInterpolator(new DecelerateInterpolator());
-        animation.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animator) { }
-
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                //do something when the countdown is complete
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animator) { }
-
-            @Override
-            public void onAnimationRepeat(Animator animator) { }
-        });
-        animation.start();
-        class Task implements Runnable {
-            @Override
-            public void run() {
-                for (int i = 0; i <= 10; i++) {
-                    final int value = i;
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    progressBar.setProgress(value);
-
-                }
-            }
-
-        }*/
-        listView= view.findViewById(R.id.listschalisa);
-        mchalisaadapter =new chalisaadapter(getActivity(),new ArrayList<JSONObject>());
-        getAmazonProducts();
+        mchalisaadapter = new chalisaadapter(requireActivity(), new ArrayList<>());
         listView.setAdapter(mchalisaadapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                JSONObject object =mchalisaadapter.mlist.get(position);
-                String string =object.optString("name");
-
-                if (string.equals("hanuman chalisa")){
-                    chalisadata fragment = new chalisadata();
-                    FragmentManager fc =getFragmentManager();
-                    FragmentTransaction fr = fc.beginTransaction();
-                    fr.replace(R.id.Framelay,fragment).addToBackStack("").commit();
+            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                JSONObject object = mchalisaadapter.mlist.get(position);
+                String name = object.optString("name");
+                Fragment next = null;
+                if ("hanuman chalisa".equalsIgnoreCase(name)) {
+                    next = new chalisadata();
+                } else if ("Khatu Shayam ji chalisa".equalsIgnoreCase(name)) {
+                    next = new khatushaamfrag();
+                } else if ("Shri Bajrang Baan".equalsIgnoreCase(name)) {
+                    next = new bajrangbaan();
                 }
-
-                String stringg =object.optString("name");
-                if (string.equals("Khatu Shayam ji chalisa")){
-                    khatushaamfrag fragment = new khatushaamfrag();
-                    FragmentManager ll =getFragmentManager();
-                    FragmentTransaction rr = ll.beginTransaction();
-                    rr.replace(R.id.Framelay,fragment).addToBackStack("").commit();
-                }
-                String stringgg =object.optString("name");
-                if (string.equals("Shri Bajrang Baan")){
-                    bajrangbaan fragment = new bajrangbaan();
-                    FragmentManager mm =getFragmentManager();
-                    FragmentTransaction nn = mm.beginTransaction();
-                    nn.replace(R.id.Framelay,fragment).addToBackStack("").commit();
+                if (next != null) {
+                    FragmentManager fm = getParentFragmentManager();
+                    FragmentTransaction ft = fm.beginTransaction();
+                    ft.replace(R.id.Framelay, next).addToBackStack(null).commit();
                 }
             }
         });
+
+        retry.setOnClickListener(v -> loadChalisas());
+
+        loadChalisas();
+
         return view;
-
-
-
     }
-    private void getAmazonProducts() {
 
-        StringRequest stringRequest = new StringRequest(Request.Method.GET,url , new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
+    private void showLoading() {
+        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+        if (errorBlock != null) errorBlock.setVisibility(View.GONE);
+        if (listView != null) listView.setVisibility(View.GONE);
+    }
 
-                List<JSONObject> objectList = new ArrayList<>();
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
-                    if(jsonObject != null){
-                        Iterator<String> keys = jsonObject.keys();
-                        while(keys.hasNext()){
-                            String key = String.valueOf(keys.next()); // this will be your JsonObject key
-                            JSONObject childObj = jsonObject.getJSONObject(key);
-                            if(childObj != null){
-                                objectList.add(childObj);
-                                //  textView.setText(childObj.optString("sundar"));
+    private void showList() {
+        if (progressBar != null) progressBar.setVisibility(View.GONE);
+        if (errorBlock != null) errorBlock.setVisibility(View.GONE);
+        if (listView != null) listView.setVisibility(View.VISIBLE);
+    }
 
+    private void showError(int messageRes) {
+        if (progressBar != null) progressBar.setVisibility(View.GONE);
+        if (errorBlock != null) errorBlock.setVisibility(View.VISIBLE);
+        if (errorText != null) errorText.setText(messageRes);
+        if (listView != null) listView.setVisibility(View.GONE);
+    }
 
-                            }
-                            mHasMore = mchalisaadapter.mlist.size() < objectList.size();
-                            mchalisaadapter.updateView(objectList);
+    private void loadChalisas() {
+        if (!isAdded()) return;
+        showLoading();
 
+        StringRequest request = new StringRequest(Request.Method.GET, URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        if (!isAdded()) return;
+                        List<JSONObject> items = parseResponse(response);
+                        if (items.isEmpty()) {
+                            showError(R.string.error_loading);
+                            return;
+                        }
+                        mchalisaadapter.updateView(items);
+                        showList();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        if (!isAdded()) return;
+                        if (error instanceof NoConnectionError
+                                || error instanceof TimeoutError) {
+                            showError(R.string.error_no_internet);
+                        } else {
+                            showError(R.string.error_loading);
                         }
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                });
+        // Reasonable timeouts (30s, no exponential backoff retries).
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                30_000,
+                1,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        request.setTag(REQUEST_TAG);
 
-                //   System.out.println(objectList.size());
-
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                //    mBar.hide();
-                if (volleyError.networkResponse != null && volleyError.networkResponse.data != null) {
-                    VolleyError error = new VolleyError(new String(volleyError.networkResponse.data));
-                    try {
-                        JSONObject jsonObject = new JSONObject(error.getMessage());
-                        Toast.makeText(getActivity(), jsonObject.optString("error"), Toast.LENGTH_LONG).show();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                } else if (volleyError instanceof NoConnectionError)
-                    Toast.makeText(getActivity(), getResources().getString(R.string.app_name), Toast.LENGTH_LONG).show();
-            }
-        });
-        stringRequest.setRetryPolicy(new RetryPolicy() {
-            @Override
-            public int getCurrentTimeout() {
-                return 50000;
-            }
-
-            @Override
-            public int getCurrentRetryCount() {
-                return 50000;
-            }
-
-            @Override
-            public void retry(VolleyError error) throws VolleyError {
-
-            }
-        });
-        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
-        requestQueue.add(stringRequest);
+        if (requestQueue == null) {
+            requestQueue = Volley.newRequestQueue(requireContext().getApplicationContext());
+        }
+        requestQueue.add(request);
     }
 
+    private static List<JSONObject> parseResponse(String response) {
+        List<JSONObject> out = new ArrayList<>();
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            Iterator<String> keys = jsonObject.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                JSONObject child = jsonObject.optJSONObject(key);
+                if (child != null) out.add(child);
+            }
+        } catch (JSONException e) {
+            // Returning the partial list is fine; caller treats empty as error.
+        }
+        return out;
     }
 
+    @Override
+    public void onDestroyView() {
+        if (requestQueue != null) {
+            requestQueue.cancelAll(REQUEST_TAG);
+        }
+        super.onDestroyView();
+    }
+}
