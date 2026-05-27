@@ -1,5 +1,6 @@
 package com.nv.user.sunderkand.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.Forward10
@@ -35,17 +35,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.nv.user.sunderkand.audio.PlayerControllerHolder
 import com.nv.user.sunderkand.audio.PlayerSnapshot
 
 /**
- * The expanded "Now Playing" view shown in a ModalBottomSheet when
- * the user taps the mini-player. Music-player ergonomics:
+ * "Now Playing" view shown in a ModalBottomSheet when the user taps
+ * the mini-player. Music-player ergonomics:
  *
- *  - Large title at the top.
- *  - Scrubbable Slider with current / total mm:ss labels.
+ *  - Big saffron title at the top.
+ *  - Scrubbable Slider with a CHUNKY 28dp circular thumb (the
+ *    default Material 3 thumb is a 4dp pill that's invisible at
+ *    typical phone DPIs).
+ *  - Current / total mm:ss labels.
  *  - Skip back 10s · play/pause · skip forward 10s row.
  *  - Replay (seek to 0) + sleep-timer entry point row.
  */
@@ -90,6 +95,16 @@ fun NowPlayingSheet(
                 activeTrackColor = MaterialTheme.colorScheme.primary,
                 inactiveTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f),
             ),
+            thumb = {
+                Box(
+                    modifier = Modifier
+                        .size(28.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = CircleShape,
+                        ),
+                )
+            },
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -162,10 +177,10 @@ fun NowPlayingSheet(
 
 @Composable
 private fun CircleIconButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     contentDescription: String,
     onClick: () -> Unit,
-    size: androidx.compose.ui.unit.Dp,
+    size: Dp,
     primary: Boolean = false,
 ) {
     Surface(
@@ -187,7 +202,7 @@ private fun CircleIconButton(
 
 @Composable
 private fun LabelledIconButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     label: String,
     onClick: () -> Unit,
 ) {
