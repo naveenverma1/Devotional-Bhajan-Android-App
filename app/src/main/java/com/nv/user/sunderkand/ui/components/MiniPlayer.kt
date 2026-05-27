@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.AssistChip
@@ -46,9 +48,15 @@ import com.nv.user.sunderkand.SunderkandApp
 import kotlinx.coroutines.launch
 
 /**
- * Spotify-style persistent mini-player. Auto-hides when no media is
- * loaded. Tap the play/pause icon to toggle; tapping the sleep-timer
- * icon opens a modal bottom sheet with timer presets.
+ * Persistent bottom mini-player.
+ *
+ *  - Auto-hides when no media is loaded.
+ *  - Title-and-progress region is clickable -> opens the full
+ *    NowPlayingSheet (scrubbable seek bar, skip back / forward 10s,
+ *    replay, sleep-timer entry).
+ *  - Bedtime icon -> SleepTimerSheet directly (so it's reachable in
+ *    one tap from anywhere in the app, no need to expand first).
+ *  - Play/Pause icon stays inline for quick toggle.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,7 +64,9 @@ fun MiniPlayer(modifier: Modifier = Modifier) {
     val app = LocalContext.current.applicationContext as SunderkandApp
     val state by app.player.snapshot.collectAsStateWithLifecycle()
     var showSleepSheet by remember { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState()
+    var showNowPlaying by remember { mutableStateOf(false) }
+    val sleepSheetState = rememberModalBottomSheetState()
+    val nowPlayingSheetState = rememberModalBottomSheetState()
     val coroutineScope = rememberCoroutineScope()
 
     AnimatedVisibility(
@@ -82,14 +92,25 @@ fun MiniPlayer(modifier: Modifier = Modifier) {
                     Column(
                         modifier = Modifier
                             .weight(1f)
-                            .padding(end = 8.dp),
+                            .padding(end = 8.dp)
+                            .clickable { showNowPlaying = true },
                     ) {
-                        Text(
-                            text = state.title.ifBlank { "Now playing" },
-                            style = MaterialTheme.typography.titleMedium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = state.title.ifBlank { "Now playing" },
+                                style = MaterialTheme.typography.titleMedium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f, fill = false),
+                            )
+                            Icon(
+                                imageVector = Icons.Filled.KeyboardArrowUp,
+                                contentDescription = "Open player",
+                                modifier = Modifier
+                                    .size(18.dp)
+                                    .padding(start = 4.dp),
+                            )
+                        }
                         state.sleepTimerRemainingMs?.let { remaining ->
                             Text(
                                 text = "Sleep in ${formatMmSs(remaining)}",
@@ -132,10 +153,30 @@ fun MiniPlayer(modifier: Modifier = Modifier) {
         }
     }
 
+    if (showNowPlaying) {
+        ModalBottomSheet(
+            onDismissRequest = { showNowPlaying = false },
+            sheetState = nowPlayingSheetState,
+            containerColor = MaterialTheme.colorScheme.surface,
+        ) {
+            NowPlayingSheet(
+                state = state,
+                player = app.player,
+                onOpenSleepTimer = {
+                    coroutineScope.launch {
+                        nowPlayingSheetState.hide()
+                        showNowPlaying = false
+                        showSleepSheet = true
+                    }
+                },
+            )
+        }
+    }
+
     if (showSleepSheet) {
         ModalBottomSheet(
             onDismissRequest = { showSleepSheet = false },
-            sheetState = sheetState,
+            sheetState = sleepSheetState,
             containerColor = MaterialTheme.colorScheme.surface,
         ) {
             SleepTimerSheet(
@@ -143,14 +184,14 @@ fun MiniPlayer(modifier: Modifier = Modifier) {
                 onPick = { minutes ->
                     app.player.setSleepTimer(minutes * 60_000L)
                     coroutineScope.launch {
-                        sheetState.hide()
+                        sleepSheetState.hide()
                         showSleepSheet = false
                     }
                 },
                 onClear = {
                     app.player.cancelSleepTimer()
                     coroutineScope.launch {
-                        sheetState.hide()
+                        sleepSheetState.hide()
                         showSleepSheet = false
                     }
                 },
@@ -247,11 +288,4 @@ private fun SleepTimerSheet(
         }
         Box(modifier = Modifier.padding(bottom = 8.dp))
     }
-}
-
-private fun formatMmSs(ms: Long): String {
-    val totalSec = (ms / 1000L).coerceAtLeast(0)
-    val mm = totalSec / 60
-    val ss = totalSec % 60
-    return String.format("%d:%02d", mm, ss)
 }

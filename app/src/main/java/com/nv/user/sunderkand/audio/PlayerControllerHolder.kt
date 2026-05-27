@@ -189,6 +189,25 @@ class PlayerControllerHolder(private val appContext: Context) {
         }
     }
 
+    /** Restart the current track from the beginning (and start playing). */
+    fun restart() {
+        scope.launch {
+            val c = controller ?: return@launch
+            c.seekTo(0L)
+            c.play()
+        }
+    }
+
+    /** Skip by [deltaMs] (negative = back, positive = forward), clamped to [0..duration]. */
+    fun skipBy(deltaMs: Long) {
+        scope.launch {
+            val c = controller ?: return@launch
+            val d = c.duration
+            val target = (c.currentPosition + deltaMs).coerceIn(0L, if (d > 0L) d else Long.MAX_VALUE)
+            c.seekTo(target)
+        }
+    }
+
     /**
      * Schedule the player to pause after [durationMs]. Passing 0 (or
      * negative) cancels any pending timer.
