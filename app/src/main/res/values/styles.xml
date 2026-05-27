@@ -1,19 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:windowBackground">@color/colorSurface</item>
+    <!--
+        Live application theme, applied after the splash screen exits.
+        The actual chrome (colors, typography) is defined in code via
+        SunderkandTheme; this XML theme exists to keep the manifest
+        happy and to avoid a default Material chrome flash before the
+        Compose first frame.
+    -->
+    <style name="Theme.Sunderkand" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/saffron_splash</item>
     </style>
 
     <!--
-        Splash variant: window background is the brand image so the user
-        sees it from the instant they tap the app icon (no white flash
-        before MainActivity inflates its layout).
+        Launch theme. Uses the Android 12+ SplashScreen API (with
+        compat shim provided by androidx.core:core-splashscreen on
+        API 23 through 30) so we get the framework-standard
+        "icon on solid color" splash on every device.
+
+        windowSplashScreenAnimatedIcon = our adaptive icon foreground
+        (the Hanuman illustration). On API 23 through 30 the compat
+        library renders the same icon with the same background.
+
+        postSplashScreenTheme is the theme the Activity continues
+        with after the splash finishes — our Theme.Sunderkand above.
     -->
-    <style name="AppTheme.Splash" parent="AppTheme">
-        <item name="android:windowBackground">@mipmap/splash</item>
+    <style name="Theme.Sunderkand.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/saffron_splash</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.Sunderkand</item>
     </style>
+
 </resources>
