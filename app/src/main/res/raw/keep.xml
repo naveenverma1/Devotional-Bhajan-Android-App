@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Safety net for the resource shrinker. The bundled audio is looked up
+    by name (content.json -> R.raw.*) so nothing references it statically;
+    without this rule `shrinkResources` silently drops every MP3 from the
+    release AAB (this is exactly what happened in v4.0 / versionCode 8).
+-->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@raw/*" />

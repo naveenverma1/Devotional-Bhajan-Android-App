@@ -48,6 +48,7 @@ import com.nv.user.sunderkand.SunderkandApp
 import com.nv.user.sunderkand.data.model.Chalisa
 import com.nv.user.sunderkand.data.prefs.SankalpState
 import com.nv.user.sunderkand.ui.components.ContinueReadingCard
+import com.nv.user.sunderkand.ui.components.LocalBottomOverlayHeight
 import com.nv.user.sunderkand.ui.components.SankalpCard
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -103,7 +104,12 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+            contentPadding = PaddingValues(
+                start = 12.dp,
+                end = 12.dp,
+                top = 8.dp,
+                bottom = 8.dp + LocalBottomOverlayHeight.current,
+            ),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
@@ -131,6 +137,7 @@ fun HomeScreen(
             items(chalisas, key = { it.id }) { chalisa ->
                 ChalisaCard(
                     chalisa = chalisa,
+                    hasAudio = app.rawIdForAudio(chalisa.audio) != 0,
                     onClick = { onOpenChalisa(chalisa.id) },
                 )
             }
@@ -159,6 +166,7 @@ private fun HomeHero(modifier: Modifier = Modifier) {
 @Composable
 private fun ChalisaCard(
     chalisa: Chalisa,
+    hasAudio: Boolean,
     onClick: () -> Unit,
 ) {
     Card(
@@ -193,7 +201,7 @@ private fun ChalisaCard(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            if (chalisa.audio != null) {
+            if (hasAudio) {
                 Icon(
                     imageVector = Icons.Filled.PlayCircle,
                     contentDescription = "Has audio",

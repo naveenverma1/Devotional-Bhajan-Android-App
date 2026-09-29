@@ -2,6 +2,7 @@ package com.nv.user.sunderkand
 
 import android.app.Application
 import com.nv.user.sunderkand.audio.PlayerControllerHolder
+import com.nv.user.sunderkand.data.AudioCatalog
 import com.nv.user.sunderkand.data.ContentRepository
 import com.nv.user.sunderkand.data.prefs.ReaderPrefs
 import com.nv.user.sunderkand.data.prefs.SankalpStore
@@ -34,9 +35,7 @@ class SunderkandApp : Application() {
     /**
      * Translate the chalisa's `audio` field (e.g. "hanumanchalisa")
      * to the matching R.raw resource id. Returns 0 if not found.
+     * See [AudioCatalog] for why this is a static table.
      */
-    fun rawIdForAudio(name: String?): Int {
-        if (name.isNullOrBlank()) return 0
-        return resources.getIdentifier(name, "raw", packageName)
-    }
+    fun rawIdForAudio(name: String?): Int = AudioCatalog.rawIdFor(name)
 }
