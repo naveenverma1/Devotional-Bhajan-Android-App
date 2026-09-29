@@ -13,13 +13,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 
@@ -62,17 +59,20 @@ class PlayerControllerHolder(private val appContext: Context) {
 
     @Volatile
     private var controller: MediaController? = null
-    private var listenerJob: Job? = null
+    private var tickerJob: Job? = null
 
     private var sleepTimerJob: Job? = null
     private var sleepTimerEndAt: Long = 0L
 
     /**
      * Suspend until we have a connected MediaController. Idempotent --
-     * subsequent calls return the cached instance.
+     * subsequent calls return the cached instance. If the service was
+     * killed underneath us (task swiped away while paused, low memory)
+     * the cached controller reports disconnected and we build a fresh
+     * one instead of silently dropping every command.
      */
     private suspend fun acquire(): MediaController {
-        controller?.let { return it }
+        controller?.let { if (it.isConnected) return it else release() }
         val token = SessionToken(
             appContext,
             ComponentName(appContext, ChalisaPlayerService::class.java),
@@ -93,10 +93,6 @@ class PlayerControllerHolder(private val appContext: Context) {
     }
 
     private fun attachListener(c: MediaController) {
-        listenerJob?.cancel()
-        listenerJob = scope.launch {
-            playerEvents(c).collect { /* state is pushed via the listener below */ }
-        }
         c.addListener(object : Player.Listener {
             override fun onEvents(player: Player, events: Player.Events) {
                 pushSnapshot(player)
@@ -105,23 +101,14 @@ class PlayerControllerHolder(private val appContext: Context) {
         pushSnapshot(c)
         // Tick position updates at 2 Hz while playing so the mini-player
         // progress bar moves without us hammering the controller.
-        scope.launch {
+        tickerJob?.cancel()
+        tickerJob = scope.launch {
             while (true) {
                 val p = controller ?: return@launch
                 if (p.isPlaying) pushSnapshot(p)
                 delay(500)
             }
         }
-    }
-
-    private fun playerEvents(c: MediaController): Flow<Unit> = callbackFlow {
-        val l = object : Player.Listener {
-            override fun onEvents(player: Player, events: Player.Events) {
-                trySend(Unit)
-            }
-        }
-        c.addListener(l)
-        awaitClose { c.removeListener(l) }
     }
 
     private fun pushSnapshot(p: Player) {
@@ -189,6 +176,16 @@ class PlayerControllerHolder(private val appContext: Context) {
         }
     }
 
+    /** Jump to an absolute position (used by tap-a-verse-to-seek in the reader). */
+    fun seekToMs(positionMs: Long) {
+        scope.launch {
+            val c = controller ?: return@launch
+            val d = c.duration
+            c.seekTo(positionMs.coerceIn(0L, if (d > 0L) d else Long.MAX_VALUE))
+            pushSnapshot(c)
+        }
+    }
+
     /** Restart the current track from the beginning (and start playing). */
     fun restart() {
         scope.launch {
@@ -241,9 +238,13 @@ class PlayerControllerHolder(private val appContext: Context) {
     fun cancelSleepTimer() = setSleepTimer(0L)
 
     fun release() {
-        listenerJob?.cancel()
+        tickerJob?.cancel()
+        tickerJob = null
         sleepTimerJob?.cancel()
+        sleepTimerJob = null
+        sleepTimerEndAt = 0L
         controller?.release()
         controller = null
+        _snapshot.value = PlayerSnapshot()
     }
 }

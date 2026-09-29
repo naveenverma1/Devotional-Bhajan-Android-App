@@ -1,18 +1,24 @@
 package com.nv.user.sunderkand.ui.components
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ripple
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -40,12 +46,15 @@ import com.nv.user.sunderkand.data.model.VerseType
 fun VerseRow(
     verse: Verse,
     fontScale: Float,
+    lineSpacing: Float = 1f,
+    highlighted: Boolean = false,
+    onClick: (() -> Unit)? = null,
     onLongPress: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val baseStyle = MaterialTheme.typography.bodyLarge.copy(
         fontSize = MaterialTheme.typography.bodyLarge.fontSize * fontScale,
-        lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * fontScale,
+        lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * fontScale * lineSpacing,
     )
 
     val align: TextAlign = when (verse.type) {
@@ -67,19 +76,28 @@ fun VerseRow(
     }
 
     val interaction = remember { MutableInteractionSource() }
-    val clickable = if (onLongPress != null) {
+    val clickable = if (onLongPress != null || onClick != null) {
         Modifier.combinedClickable(
             interactionSource = interaction,
             indication = ripple(bounded = true, color = MaterialTheme.colorScheme.primary),
-            onClick = { /* no-op for now; long-press is the gesture */ },
+            onClick = { onClick?.invoke() },
             onLongClick = onLongPress,
         )
     } else Modifier
 
+    // Soft saffron wash behind the verse currently being sung (audio sync).
+    val highlightColor by animateColorAsState(
+        targetValue = if (highlighted) MaterialTheme.colorScheme.primary.copy(alpha = 0.14f) else Color.Transparent,
+        label = "verseHighlight",
+    )
+
     Column(
         modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+            .background(highlightColor, RoundedCornerShape(12.dp))
             .then(clickable)
-            .padding(PaddingValues(horizontal = sidePadding, vertical = 8.dp)),
+            .padding(PaddingValues(horizontal = sidePadding - 8.dp, vertical = 8.dp)),
         horizontalAlignment = if (align == TextAlign.Center) Alignment.CenterHorizontally else Alignment.Start,
     ) {
         if (verse.number != null && verse.type == VerseType.CHAUPAI) {

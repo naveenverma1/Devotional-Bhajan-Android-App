@@ -6,6 +6,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import com.nv.user.sunderkand.data.prefs.ReaderPrefs
 
 // Brand palette — fixed, not dynamic.
 //
@@ -65,11 +66,20 @@ private val WarmDarkScheme = darkColorScheme(
     outline = DarkInkMuted,
 )
 
+/**
+ * @param themePref one of [ReaderPrefs.THEME_SYSTEM] / [ReaderPrefs.THEME_LIGHT] /
+ *   [ReaderPrefs.THEME_DARK]. Anything else falls back to following the system.
+ */
 @Composable
 fun SunderkandTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    themePref: String = ReaderPrefs.THEME_SYSTEM,
     content: @Composable () -> Unit,
 ) {
+    val darkTheme = when (themePref) {
+        ReaderPrefs.THEME_LIGHT -> false
+        ReaderPrefs.THEME_DARK -> true
+        else -> isSystemInDarkTheme()
+    }
     val colors = if (darkTheme) WarmDarkScheme else SepiaLightScheme
     MaterialTheme(
         colorScheme = colors,

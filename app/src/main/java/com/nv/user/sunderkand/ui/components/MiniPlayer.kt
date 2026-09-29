@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,6 +33,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,9 +50,19 @@ import com.nv.user.sunderkand.SunderkandApp
 import kotlinx.coroutines.launch
 
 /**
+ * Height of whatever is overlaid on the bottom edge of the screen (the
+ * mini-player, when audio is loaded; 0.dp otherwise). Scrolling screens
+ * add this to their bottom content padding so the last rows are never
+ * hidden behind the player.
+ */
+val LocalBottomOverlayHeight = compositionLocalOf { 0.dp }
+
+/**
  * Persistent bottom mini-player.
  *
  *  - Auto-hides when no media is loaded.
+ *  - Draws its own navigation-bar inset (the Activity is edge-to-edge),
+ *    so the controls sit above the system bar instead of under it.
  *  - Title-and-progress region is clickable -> opens the full
  *    NowPlayingSheet (scrubbable seek bar, skip back / forward 10s,
  *    replay, sleep-timer entry).
@@ -82,7 +94,7 @@ fun MiniPlayer(modifier: Modifier = Modifier) {
             shadowElevation = 8.dp,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Column {
+            Column(modifier = Modifier.navigationBarsPadding()) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
