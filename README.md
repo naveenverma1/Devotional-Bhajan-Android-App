@@ -14,7 +14,7 @@ shipped without its audio files.
 - Version: `4.1`
 - Version code: `9`
 - Minimum Android version: Android 7.0 / API 24
-- Target SDK: Android 15 / API 35
+- Target SDK: Android 16 / API 36
 
 ### What's new in 4.1
 
@@ -71,7 +71,7 @@ Requirements:
 
 - Android Studio
 - JDK 17
-- Android SDK 35
+- Android SDK 36
 
 Build a debug APK:
 
