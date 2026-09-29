@@ -25,7 +25,9 @@ Repository: Sunderkand Path and Chalisa (`com.nv.user.sunderkand`).
 - Deploy to Play Console via `python scripts/play_deploy.py` (the
   service account JSON lives at `keystore/play-service-account.json`,
   git-ignored). It also uploads the R8 mapping for readable crash traces.
-  On the corporate laptop pass `--ca-bundle` for the proxy CA.
+  On the corporate laptop pass `--ca-bundle keystore/corp-ca-bundle.pem`
+  (certifi + the KTRootCA/KTSubCA01/Zscaler chain; git-ignored, rebuild
+  it from the Windows cert store if it goes missing).
 - Never deploy without explicit user instruction.
 
 ## Adding content

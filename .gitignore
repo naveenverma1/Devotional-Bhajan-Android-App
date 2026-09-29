@@ -36,3 +36,4 @@ Thumbs.db
 /scripts/.cache/
 /.devin_tmp/
 /scripts/__pycache__/
+/keystore/corp-ca-bundle.pem
