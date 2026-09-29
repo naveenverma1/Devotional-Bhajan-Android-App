@@ -12,14 +12,17 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace "com.nv.user.sunderkand"
-    compileSdkVersion 35
+    // Play requires updates to target API 36 (Android 16) from 31 Aug 2026.
+    // AGP 8.7.3 only "officially" knows API 35; android.suppressUnsupportedCompileSdk
+    // in gradle.properties silences the warning until AGP is upgraded.
+    compileSdkVersion 36
 
     defaultConfig {
         applicationId "com.nv.user.sunderkand"
         // v4.0 bumps minSdk from 21 -> 24 (Android 7.0). Covers ~98% of the
         // installed base in India and frees us from a lot of legacy compat.
         minSdkVersion 24
-        targetSdkVersion 35
+        targetSdkVersion 36
         // Play history: 7 = v3.0, 8 = v4.0 (shipped without audio -- see
         // SunderkandApp.rawIdForAudio), 9 = v4.1.
         versionCode 9
