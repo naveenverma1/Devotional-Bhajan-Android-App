@@ -7,8 +7,34 @@ Helpers for building and publishing **Sunderkand Path and Chalisa**
 
 | File | Purpose |
 |---|---|
-| `play_deploy.py` | Uploads a signed AAB and creates a release on a track via the Google Play Developer API. |
+| `play_deploy.py` | Uploads a signed AAB (+ R8 mapping) and creates a release on a track via the Google Play Developer API. |
+| `align_audio.py` | Derives per-verse `startMs` timings for a bundled MP3 with Whisper, so the reader can highlight / follow the sung verse. |
+| `migrate_content.py` | One-off v3 -> v4 content migration (kept for reference). |
+| `make_launcher_icons.py` | Regenerates launcher icon mipmaps from the master artwork. |
 | `requirements.txt` | Python dependencies for `play_deploy.py`. |
+
+## Audio <-> verse alignment (`align_audio.py`)
+
+```bash
+pip install faster-whisper
+python scripts/align_audio.py --chalisa hanuman_chalisa --model medium --device cpu --dry-run
+python scripts/align_audio.py --chalisa hanuman_chalisa --model medium --device cpu   # writes startMs into content.json
+```
+
+- Transcripts are cached in `scripts/.cache/` (git-ignored); delete the
+  cache file to force a re-transcribe.
+- `--device cuda` needs CUDA 12 + cuDNN on the PATH for CTranslate2;
+  CPU is fine (a 10-minute chalisa takes ~4 min on a 22-core laptop).
+- Review the printed table: `~` rows were interpolated between
+  neighbours rather than matched directly. A handful is normal.
+- `ContentIntegrityTest` fails if timings are non-monotonic or attached
+  to a chalisa without audio.
+
+## Corporate proxy / TLS
+
+If uploads fail with `CERTIFICATE_VERIFY_FAILED`, point the script at
+the proxy's CA bundle with `--ca-bundle path/to/ca.pem` (or set the
+`HTTPLIB2_CA_CERTS` environment variable).
 
 ## What this automates (and what it does not)
 

@@ -52,6 +52,8 @@ import argparse
 import sys
 from pathlib import Path
 
+import google_auth_httplib2
+import httplib2
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
@@ -102,6 +104,24 @@ def parse_args() -> argparse.Namespace:
         help="Staged rollout fraction for production (0.0 - 1.0). Default: 1.0 (full).",
     )
     parser.add_argument(
+        "--mapping",
+        type=Path,
+        default=None,
+        help=(
+            "R8 mapping.txt to upload for crash de-obfuscation. Defaults to "
+            "app/build/outputs/mapping/release/mapping.txt when that exists."
+        ),
+    )
+    parser.add_argument(
+        "--ca-bundle",
+        type=Path,
+        default=None,
+        help=(
+            "PEM bundle to trust for TLS (e.g. a corporate proxy CA). "
+            "Equivalent to setting the HTTPLIB2_CA_CERTS env var."
+        ),
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Upload and stage the release, but do NOT commit the edit.",
@@ -109,20 +129,34 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def build_service(service_account_path: Path):
+def build_service(service_account_path: Path, ca_bundle: Path | None = None):
     if not service_account_path.exists():
         sys.exit(f"Service account key not found: {service_account_path}")
     credentials = service_account.Credentials.from_service_account_file(
         str(service_account_path), scopes=SCOPES
     )
-    return build("androidpublisher", "v3", credentials=credentials, cache_discovery=False)
+    http = google_auth_httplib2.AuthorizedHttp(
+        credentials,
+        http=httplib2.Http(ca_certs=str(ca_bundle) if ca_bundle else None),
+    )
+    return build("androidpublisher", "v3", http=http, cache_discovery=False)
+
+
+def default_mapping_for(aab: Path) -> Path | None:
+    # app/build/outputs/bundle/release/app-release.aab
+    #   -> app/build/outputs/mapping/release/mapping.txt
+    candidate = aab.parent.parent.parent / "mapping" / aab.parent.name / "mapping.txt"
+    return candidate if candidate.exists() else None
 
 
 def deploy(args: argparse.Namespace) -> None:
     if not args.aab.exists():
         sys.exit(f"AAB not found: {args.aab}")
+    mapping = args.mapping or default_mapping_for(args.aab)
+    if args.mapping and not args.mapping.exists():
+        sys.exit(f"Mapping file not found: {args.mapping}")
 
-    service = build_service(args.service_account)
+    service = build_service(args.service_account, args.ca_bundle)
     edits = service.edits()
 
     print(f"-> Creating edit for {PACKAGE_NAME} ...")
@@ -143,6 +177,18 @@ def deploy(args: argparse.Namespace) -> None:
     ).execute()
     version_code = bundle["versionCode"]
     print(f"   uploaded versionCode: {version_code}")
+
+    if mapping:
+        print(f"-> Uploading R8 mapping {mapping} ...")
+        edits.deobfuscationfiles().upload(
+            packageName=PACKAGE_NAME,
+            editId=edit_id,
+            apkVersionCode=version_code,
+            deobfuscationFileType="proguard",
+            media_body=MediaFileUpload(str(mapping), mimetype="application/octet-stream"),
+        ).execute()
+    else:
+        print("-> No mapping.txt found; crash traces for this build will be obfuscated.")
 
     release = {
         "name": args.release_name or f"Release {version_code}",

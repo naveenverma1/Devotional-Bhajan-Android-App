@@ -31,3 +31,8 @@ play-service-account.json
 Thumbs.db
 # Windows reserved-name artifact when shell redirects to `nul`.
 /nul
+
+# Whisper transcript cache + scratch
+/scripts/.cache/
+/.devin_tmp/
+/scripts/__pycache__/
